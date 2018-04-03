@@ -1,0 +1,204 @@
+<!--Code created for the Data to Perception class at OCAD University
+Written by Sana Shepko, MDes Digital Futures, spring 2018
+Using Mapbox GL JS Library
+Project members: Sana Shepko, Prateek Verma, Emma Brito
+-->
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8' />
+    <title>Meteorite landings!</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.44.1/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.44.1/mapbox-gl.css' rel='stylesheet' />
+<link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">
+
+      
+      <!--ALL STYLES HERE-->
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Nunito', sans-serif;
+
+      }
+
+      #map {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 100%;
+      }
+        dd {
+            margin: 0px;
+        }
+        
+        h1 {
+  font-size: 20px;
+  line-height: 30px;
+            color: white;
+}
+
+        h2 {
+  font-size: 14px;
+  line-height: 20px;
+  margin-bottom: 10px;
+}
+        
+        p {
+ color: #838282;
+        }
+        
+        a {
+  text-decoration: none;
+  color: #c8fffb;
+}
+
+        #console {
+  position: absolute;
+  width: 260px;
+  margin: 10px;
+  padding: 3px 12px;
+  background-color: rgba(7, 7, 7, 0.62);
+}
+        .mapboxgl-popup-content {
+            background-color: rgba(255, 255, 255, 0.84);
+            font-family: 'Nunito', sans-serif;
+        }
+        
+        .session {
+  margin-bottom: 20px;
+}
+
+.row {
+  height: 12px;
+  width: 100%;
+}
+
+.colors {
+  background: linear-gradient(to right, #964F48, #A66481, #997CA6, #7897BF, #4EB1C4, #3FC6B5, #6BD797, #dae278);
+  margin-bottom: 5px;
+}
+
+        label {
+            color: white;
+            font-size: 12px;
+        }
+.label {
+  width: 11%;
+  display: inline-block;
+  text-align: center;
+    color: white;
+    font-size: 10px;
+}
+        .label1 {
+  width: 9.5%;
+  display: inline-block;
+  text-align: center;
+    color: white;
+    font-size: 10px;
+}
+    </style>
+    </head>
+        <!--END STYLE-->
+
+  <body>      
+<div id='map'></div>
+      
+      <!--CONSOLE LEGEND STARTS HERE-->
+      <div id='console'>
+  <h1>Meteorite Landings</h1>
+  <p>Data: <a href='https://data.nasa.gov/Space-Science/Meteorite-Landings/gh4g-9sfh'>Meteorite landings in Nasa's Open Portal</a></p>
+          
+          <!--THIS IS THE YEAR COLOUR LEGEND-->
+
+      <div class='session'>
+  <p>Year = colour</p>
+  <div class='row colors'>
+  </div>
+  <div class='row labels'>
+    <div class='label'>1350</div>
+    <div class='label'>1450</div>
+    <div class='label'>1550</div>
+    <div class='label'>1650</div>
+    <div class='label'>1750</div>
+    <div class='label'>1850</div>
+    <div class='label'>1950</div>
+    <div class='label'>2050</div>
+   </div>
+  </div>
+    
+                    <!--THIS IS THE MASS RADIUS LEGEND-->
+
+    <div class='session2'>
+  <p>Mass (in grams) = radius range </p>
+  <div class='mass'>
+    <div class='label1'>0</div>
+    <div class='label1'>10</div>
+    <div class='label1'>100</div>
+    <div class='label1'>1k</div>
+    <div class='label1'>10k</div>
+    <div class='label1'>100k</div>
+    <div class='label1'>1m</div>
+    <div class='label1'>10m</div>
+    <div class='label1'>100m</div>
+  </div>
+</div>
+          
+           <!--THIS IS THE YEAR SLIDER-->
+          <div class='session' id='sliderbar'>
+  <p>Selected year: <label id='active-year'>All years</label></p>
+  <input id='slider' class='row' type='range' min='1300' max='2050' step='1'/>
+</div>
+          
+      </div>
+      
+      
+ <!--START SCRIPT HERE-->
+     
+      <!--basic setup for mapbox here-->
+    <script>
+    mapboxgl.accessToken = 'pk.eyJ1Ijoic2FuYWFsbGEiLCJhIjoibEtoeFIxayJ9.43sWyAt_JtTb_kutj_byJg'; // my custom access token
+    var map = new mapboxgl.Map({
+      container: 'map',
+      style: 'mapbox://styles/sanaalla/cjf2rxmri5a3m2tq8p8fj3f0t' // my custom style URL
+    });
+        
+   //access the data from mapbox tile
+        map.on('click', function(e) {
+  var features = map.queryRenderedFeatures(e.point, {
+    layers: ['meteorite-landings-892o2g'] // replace this with the name of the layer
+  });
+
+  if (!features.length) {
+    return;
+  }
+
+  var feature = features[0];
+            
+//show the specified features below on click
+  var popup = new mapboxgl.Popup({ offset: [0, -15] })
+    .setLngLat(feature.geometry.coordinates)
+  .setHTML('<h2><dd>' + "Year: " + feature.properties.year + '</h2></dd><p><dd>' + "Mass (grams): " + feature.properties.massg + '</p></dd><p><dd>' + "Name: " + feature.properties.name + '</p></dd>')
+             
+    .setLngLat(feature.geometry.coordinates)
+    .addTo(map);
+});
+        
+        //YEAR SLIDER IS HERE
+                     document.getElementById('slider').addEventListener('input', function(e) {
+  var year = parseInt(e.target.value);
+  // update the map
+  map.setFilter('meteorite-landings-892o2g', ['==', ['number', ['get', 'year']], year]);
+
+
+  // update text in the UI
+  document.getElementById('active-year').innerText = year;
+});
+        
+    
+
+    </script>
+  </body>
+</html>
